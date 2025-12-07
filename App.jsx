@@ -15,7 +15,6 @@ const App = () => {
   const featuresGridRef = useRef(null);
   const stepsContainerRef = useRef(null);
   const ctaContentRef = useRef(null);
-  const footerRef = useRef(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -188,7 +187,6 @@ const App = () => {
         allElements.push({ el: stepsContainerRef.current });
       }
       if (ctaContentRef.current) allElements.push({ el: ctaContentRef.current });
-      if (footerRef.current) allElements.push({ el: footerRef.current });
 
       // Setup all elements - they will animate only when scrolled into view
       allElements.forEach(({ el }) => {
@@ -309,6 +307,7 @@ const App = () => {
           <div className="gradient-orb orb-1"></div>
           <div className="gradient-orb orb-2"></div>
         </div>
+        <div className="hero-container">
         <div className="hero-content" ref={heroContentRef}>
           <h1 className="hero-title">
             ANITA
@@ -352,6 +351,7 @@ const App = () => {
             alt="ANITA Mobile App" 
             className="screenshot-image"
           />
+        </div>
         </div>
       </section>
 
@@ -509,10 +509,8 @@ const App = () => {
           </button>
           <p className="pricing-note">Pricing available in the webapp</p>
         </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="footer" ref={footerRef}>
+        
+        {/* Footer Content */}
         <div className="footer-content">
           <div className="footer-section">
             <div className="footer-logo">
@@ -545,7 +543,7 @@ const App = () => {
         <div className="footer-bottom">
           <p className="footer-copyright">© 2024 ANITA Finance Advisor. All rights reserved.</p>
         </div>
-      </footer>
+      </section>
     </div>
   );
 };
