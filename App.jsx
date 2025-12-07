@@ -57,6 +57,7 @@ const App = () => {
     const wasInitiallyVisible = rect.top < window.innerHeight && rect.bottom > 0 && window.scrollY === 0;
 
     let hasUserScrolled = false;
+    let animationTriggered = false;
 
     // Track if user has scrolled (not just page load)
     const handleScroll = () => {
@@ -66,20 +67,23 @@ const App = () => {
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
 
+    const triggerAnimation = () => {
+      if (!animationTriggered && !statsAnimated) {
+        animationTriggered = true;
+        setStatsAnimated(true);
+        animateNumber(32, setSmartQuestions, 2000);
+        animateNumber(200, setActiveUsers, 2000);
+        animateNumber(100, setSecurePercent, 2000);
+      }
+    };
+
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          // Only animate if:
-          // 1. Element is intersecting (in viewport)
-          // 2. Animation hasn't been triggered yet
-          // 3. User has scrolled OR element wasn't visible on initial load
           if (entry.isIntersecting && !statsAnimated) {
             // Animate if user scrolled OR if element wasn't visible initially
             if (hasUserScrolled || !wasInitiallyVisible) {
-              setStatsAnimated(true);
-              animateNumber(32, setSmartQuestions, 2000);
-              animateNumber(200, setActiveUsers, 2000);
-              animateNumber(100, setSecurePercent, 2000);
+              triggerAnimation();
               observer.unobserve(entry.target);
             }
           }
@@ -91,6 +95,13 @@ const App = () => {
     // Small delay to ensure DOM is ready
     const timeoutId = setTimeout(() => {
       observer.observe(heroStats);
+      
+      // If stats are visible on page load, animate them after hero content animation completes
+      if (wasInitiallyVisible && !hasUserScrolled) {
+        setTimeout(() => {
+          triggerAnimation();
+        }, 1000); // Wait for hero content animation to complete
+      }
     }, 100);
 
     return () => {
