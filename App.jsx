@@ -250,7 +250,7 @@ const App = () => {
     }
     // Use setTimeout to ensure touch event completes
     setTimeout(() => {
-      window.location.href = 'https://anita.app'; // Update with actual webapp URL
+      window.location.href = 'https://app.anita.finance'; // Update with actual webapp URL
     }, 0);
   };
 
