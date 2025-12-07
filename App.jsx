@@ -27,23 +27,25 @@ const App = () => {
 
   // Animate hero content and image on page load
   useEffect(() => {
+    // Add initial hidden state immediately
     if (heroContentRef.current) {
-      // Add initial animation state to hero content
       heroContentRef.current.classList.add('hero-content-load');
-      // Trigger animation after a small delay
-      setTimeout(() => {
-        heroContentRef.current?.classList.add('hero-content-animated');
-      }, 100);
+    }
+    if (heroImageRef.current) {
+      heroImageRef.current.classList.add('hero-image-load');
     }
     
-    if (heroImageRef.current) {
-      // Add initial animation state to hero image
-      heroImageRef.current.classList.add('hero-image-load');
-      // Trigger animation after a small delay (slightly after content)
+    // Trigger animations after a very short delay to ensure classes are applied
+    requestAnimationFrame(() => {
       setTimeout(() => {
-        heroImageRef.current?.classList.add('hero-image-animated');
-      }, 200);
-    }
+        if (heroContentRef.current) {
+          heroContentRef.current.classList.add('hero-content-animated');
+        }
+        if (heroImageRef.current) {
+          heroImageRef.current.classList.add('hero-image-animated');
+        }
+      }, 50);
+    });
   }, []);
 
   useEffect(() => {
@@ -148,10 +150,8 @@ const App = () => {
       };
 
       // Collect all elements first
+      // Skip hero content and image since they have their own load animations
       const allElements = [];
-      
-      if (heroContentRef.current) allElements.push({ el: heroContentRef.current });
-      if (heroImageRef.current) allElements.push({ el: heroImageRef.current });
       
       document.querySelectorAll('.section-header').forEach((el) => {
         allElements.push({ el });

@@ -163,17 +163,28 @@ body {
   z-index: 1;
 }
 
-/* Hero Content Load Animation */
-.hero-content-load {
-  opacity: 0;
-  transform: translateY(30px);
+/* Hero Content Load Animation - Override scroll animations */
+.hero-content.hero-content-load {
+  opacity: 0 !important;
+  transform: translateY(30px) !important;
   transition: opacity 1s cubic-bezier(0.4, 0, 0.2, 1), 
-              transform 1s cubic-bezier(0.4, 0, 0.2, 1);
+              transform 1s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
-.hero-content-load.hero-content-animated {
-  opacity: 1;
-  transform: translateY(0);
+.hero-content.hero-content-load.hero-content-animated {
+  opacity: 1 !important;
+  transform: translateY(0) !important;
+}
+
+/* Prevent scroll animations from interfering */
+.hero-content.hero-content-load.animate-on-scroll {
+  opacity: 0 !important;
+  transform: translateY(30px) !important;
+}
+
+.hero-content.hero-content-load.hero-content-animated.animate-on-scroll {
+  opacity: 1 !important;
+  transform: translateY(0) !important;
 }
 
 /* Stagger animation for hero content children */
@@ -182,40 +193,40 @@ body {
 .hero-content-load .hero-tagline,
 .hero-content-load .hero-cta-group,
 .hero-content-load .hero-stats {
-  opacity: 0;
-  transform: translateY(20px);
+  opacity: 0 !important;
+  transform: translateY(20px) !important;
   transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), 
               transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .hero-content-animated .hero-badge {
   transition-delay: 0.1s;
-  opacity: 1;
-  transform: translateY(0);
+  opacity: 1 !important;
+  transform: translateY(0) !important;
 }
 
 .hero-content-animated .hero-title {
   transition-delay: 0.2s;
-  opacity: 1;
-  transform: translateY(0);
+  opacity: 1 !important;
+  transform: translateY(0) !important;
 }
 
 .hero-content-animated .hero-tagline {
   transition-delay: 0.3s;
-  opacity: 1;
-  transform: translateY(0);
+  opacity: 1 !important;
+  transform: translateY(0) !important;
 }
 
 .hero-content-animated .hero-cta-group {
   transition-delay: 0.4s;
-  opacity: 1;
-  transform: translateY(0);
+  opacity: 1 !important;
+  transform: translateY(0) !important;
 }
 
 .hero-content-animated .hero-stats {
   transition-delay: 0.5s;
-  opacity: 1;
-  transform: translateY(0);
+  opacity: 1 !important;
+  transform: translateY(0) !important;
 }
 
 .hero-badge {
@@ -378,17 +389,28 @@ body {
   border-radius: 30px;
 }
 
-/* Hero Image Load Animation */
-.hero-image-load {
-  opacity: 0;
-  transform: translateY(40px) scale(0.95);
+/* Hero Image Load Animation - Override scroll animations */
+.hero-image.hero-image-load {
+  opacity: 0 !important;
+  transform: translateY(40px) scale(0.95) !important;
   transition: opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1), 
-              transform 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+              transform 1.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
-.hero-image-load.hero-image-animated {
-  opacity: 1;
-  transform: translateY(0) scale(1);
+.hero-image.hero-image-load.hero-image-animated {
+  opacity: 1 !important;
+  transform: translateY(0) scale(1) !important;
+}
+
+/* Prevent scroll animations from interfering */
+.hero-image.hero-image-load.animate-on-scroll {
+  opacity: 0 !important;
+  transform: translateY(40px) scale(0.95) !important;
+}
+
+.hero-image.hero-image-load.hero-image-animated.animate-on-scroll {
+  opacity: 1 !important;
+  transform: translateY(0) scale(1) !important;
 }
 
 @media (max-width: 768px) {
