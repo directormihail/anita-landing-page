@@ -161,7 +161,6 @@ body {
   flex: 1;
   max-width: 600px;
   z-index: 1;
-  animation: fadeInUp 0.8s ease-out;
 }
 
 .hero-badge {
@@ -186,9 +185,9 @@ body {
 .beta-badge {
   display: inline-block;
   padding: 0.5rem 1rem;
-  background: rgba(255, 107, 107, 0.2);
+  background: rgba(255, 107, 107, 0.3);
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 107, 107, 0.3);
+  border: 2px solid #ff6b6b;
   border-radius: 50px;
   font-size: 0.85rem;
   color: #ff6b6b;
@@ -208,6 +207,9 @@ body {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  font-size: 0.5em;
+  display: block;
+  margin-top: 0.5rem;
 }
 
 .hero-tagline {
@@ -310,8 +312,26 @@ body {
 
 .hero-image {
   flex: 1;
-  max-width: 500px;
+  max-width: 2000px;
   z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+  overflow: hidden;
+  border-radius: 30px;
+}
+
+.screenshot-image {
+  width: 100%;
+  max-width: 2000px;
+  height: 100vh;
+  min-height: 700px;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+  border-radius: 30px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
 }
 
 .screenshot-placeholder {
@@ -455,12 +475,6 @@ body {
   height: 100%;
 }
 
-.feature-card:hover {
-  transform: translateY(-4px);
-  background: rgba(255, 255, 255, 0.05);
-  border-color: rgba(255, 255, 255, 0.15);
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
-}
 
 .feature-number {
   font-size: 3rem;
@@ -506,11 +520,6 @@ body {
   transition: all 0.3s ease;
 }
 
-.feature-card:hover .highlight-item {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.15);
-  color: #ffffff;
-}
 
 /* How It Works Section */
 .how-it-works {
@@ -540,70 +549,64 @@ body {
 }
 
 .steps-container {
-  max-width: 1200px;
+  max-width: 1000px;
   margin: 0 auto;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  gap: 4rem;
+  position: relative;
+  z-index: 1;
+  padding: 2rem 0;
+}
+
+.step-item {
+  display: flex;
   align-items: flex-start;
   gap: 2rem;
   position: relative;
-  z-index: 1;
 }
 
-.step-card {
-  flex: 1;
-  max-width: 320px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 16px;
-  padding: 2.5rem;
-  text-align: center;
-  transition: all 0.3s ease;
-  position: relative;
-  z-index: 1;
-}
-
-.step-card:hover {
-  background: rgba(255, 255, 255, 0.05);
-  border-color: rgba(255, 255, 255, 0.15);
-  transform: translateY(-4px);
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
-}
-
-.step-card:hover {
-  transform: translateY(-5px);
-  background: rgba(255, 255, 255, 0.05);
-  border-color: rgba(255, 255, 255, 0.15);
-}
-
-.step-connector {
-  width: 2px;
-  height: 100px;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.1) 0%, transparent 100%);
-  margin-top: 4rem;
-  position: relative;
-  z-index: 0;
-}
-
-.step-number {
-  width: 60px;
-  height: 60px;
+.step-number-circle {
+  width: 80px;
+  height: 80px;
+  min-width: 80px;
   background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 12px;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.75rem;
+  font-size: 2rem;
   font-weight: 700;
   color: #ffffff;
-  margin: 0 auto 1.5rem;
+  position: relative;
+  z-index: 2;
+}
+
+.step-line {
+  width: 2px;
+  min-height: 120px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.05) 100%);
+  position: absolute;
+  left: 39px;
+  top: 80px;
+  z-index: 1;
+}
+
+.step-item:last-child .step-line {
+  display: none;
+}
+
+.step-content {
+  flex: 1;
+  padding-top: 0.5rem;
 }
 
 .step-title {
   font-size: 1.5rem;
   margin-bottom: 1rem;
   font-weight: 600;
+  color: #ffffff;
 }
 
 .step-description {
@@ -1003,6 +1006,308 @@ body {
   }
 }
 
+/* Scroll Animation Classes - Elements are visible by default */
+.animate-on-scroll {
+  /* Don't hide by default - only hide if we're going to animate */
+  transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+
+/* Only hide elements that have animate-on-scroll but not animate-in yet */
+.animate-on-scroll:not(.animate-in) {
+  opacity: 0;
+}
+
+/* Fallback: Ensure elements become visible after 2 seconds if JS fails */
+/* This is a safety net in case JavaScript doesn't run */
+@media (prefers-reduced-motion: no-preference) {
+  .animate-on-scroll:not(.animate-in) {
+    animation: fadeInFallback 0.5s ease-out 2s forwards;
+  }
+}
+
+@keyframes fadeInFallback {
+  to {
+    opacity: 1 !important;
+    transform: translateY(0) translateX(0) scale(1) !important;
+  }
+}
+
+/* Override fallback when animate-in is applied */
+.animate-on-scroll.animate-in {
+  animation: none;
+}
+
+.features-grid.animate-in .feature-card,
+.steps-container.animate-in .step-item {
+  animation: none;
+}
+
+/* Desktop Animations - More Dynamic */
+@media (min-width: 769px) {
+  .animate-on-scroll {
+    transition: opacity 1s cubic-bezier(0.4, 0, 0.2, 1), transform 1s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Hero Content - Slide from left */
+  .hero-content.animate-on-scroll {
+    transform: translateX(-50px);
+  }
+
+  .hero-content.animate-on-scroll.animate-in {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  /* Hero Image - Slide from right */
+  .hero-image.animate-on-scroll {
+    transform: translateX(50px);
+  }
+
+  .hero-image.animate-on-scroll.animate-in {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  /* Section Headers - Fade up */
+  .section-header.animate-on-scroll {
+    transform: translateY(40px);
+  }
+
+  .section-header.animate-on-scroll.animate-in {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Feature Cards - Staggered fade from bottom with slight scale */
+  /* Default: visible */
+  .features-grid .feature-card {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Only hide if parent has animate-on-scroll but not animate-in */
+  .features-grid.animate-on-scroll:not(.animate-in) .feature-card {
+    opacity: 0;
+    transform: translateY(60px) scale(0.95);
+  }
+
+  /* When animated in, make visible */
+  .features-grid.animate-in .feature-card {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  .features-grid.animate-in .feature-card:nth-child(1) {
+    transition-delay: 0.1s;
+  }
+
+  .features-grid.animate-in .feature-card:nth-child(2) {
+    transition-delay: 0.2s;
+  }
+
+  .features-grid.animate-in .feature-card:nth-child(3) {
+    transition-delay: 0.3s;
+  }
+
+  .features-grid.animate-in .feature-card:nth-child(4) {
+    transition-delay: 0.4s;
+  }
+
+  .features-grid.animate-in .feature-card:nth-child(5) {
+    transition-delay: 0.5s;
+  }
+
+  .features-grid.animate-in .feature-card:nth-child(6) {
+    transition-delay: 0.6s;
+  }
+
+  /* Step Items - Slide from left with stagger */
+  /* Default: visible */
+  .steps-container .step-item {
+    opacity: 1;
+    transform: translateX(0);
+    transition: opacity 0.9s cubic-bezier(0.4, 0, 0.2, 1), transform 0.9s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Only hide if parent has animate-on-scroll but not animate-in */
+  .steps-container.animate-on-scroll:not(.animate-in) .step-item {
+    opacity: 0;
+    transform: translateX(-80px);
+  }
+
+  /* When animated in, make visible */
+  .steps-container.animate-in .step-item {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  .steps-container.animate-in .step-item:nth-child(1) {
+    transition-delay: 0.1s;
+  }
+
+  .steps-container.animate-in .step-item:nth-child(2) {
+    transition-delay: 0.3s;
+  }
+
+  .steps-container.animate-in .step-item:nth-child(3) {
+    transition-delay: 0.5s;
+  }
+
+  /* CTA Content - Fade up with scale */
+  .cta-content.animate-on-scroll {
+    transform: translateY(50px) scale(0.95);
+  }
+
+  .cta-content.animate-on-scroll.animate-in {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  /* Footer - Fade up */
+  .footer.animate-on-scroll {
+    transform: translateY(40px);
+  }
+
+  .footer.animate-on-scroll.animate-in {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Mobile Animations - Simpler, Less Movement */
+@media (max-width: 768px) {
+  .animate-on-scroll {
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+  }
+
+  /* Hero Content - Simple fade up */
+  .hero-content.animate-on-scroll {
+    transform: translateY(30px);
+  }
+
+  .hero-content.animate-on-scroll.animate-in {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Hero Image - Simple fade up */
+  .hero-image.animate-on-scroll {
+    transform: translateY(30px);
+  }
+
+  .hero-image.animate-on-scroll.animate-in {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Section Headers - Fade up */
+  .section-header.animate-on-scroll {
+    transform: translateY(30px);
+  }
+
+  .section-header.animate-on-scroll.animate-in {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Feature Cards - Simple fade up with minimal stagger */
+  /* Default: visible */
+  .features-grid .feature-card {
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+  }
+
+  /* Only hide if parent has animate-on-scroll but not animate-in */
+  .features-grid.animate-on-scroll:not(.animate-in) .feature-card {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+
+  /* When animated in, make visible */
+  .features-grid.animate-in .feature-card {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .features-grid.animate-in .feature-card:nth-child(1) {
+    transition-delay: 0.05s;
+  }
+
+  .features-grid.animate-in .feature-card:nth-child(2) {
+    transition-delay: 0.1s;
+  }
+
+  .features-grid.animate-in .feature-card:nth-child(3) {
+    transition-delay: 0.15s;
+  }
+
+  .features-grid.animate-in .feature-card:nth-child(4) {
+    transition-delay: 0.2s;
+  }
+
+  .features-grid.animate-in .feature-card:nth-child(5) {
+    transition-delay: 0.25s;
+  }
+
+  .features-grid.animate-in .feature-card:nth-child(6) {
+    transition-delay: 0.3s;
+  }
+
+  /* Step Items - Simple fade up */
+  /* Default: visible */
+  .steps-container .step-item {
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+  }
+
+  /* Only hide if parent has animate-on-scroll but not animate-in */
+  .steps-container.animate-on-scroll:not(.animate-in) .step-item {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+
+  /* When animated in, make visible */
+  .steps-container.animate-in .step-item {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .steps-container.animate-in .step-item:nth-child(1) {
+    transition-delay: 0.1s;
+  }
+
+  .steps-container.animate-in .step-item:nth-child(2) {
+    transition-delay: 0.2s;
+  }
+
+  .steps-container.animate-in .step-item:nth-child(3) {
+    transition-delay: 0.3s;
+  }
+
+  /* CTA Content - Simple fade up */
+  .cta-content.animate-on-scroll {
+    transform: translateY(40px);
+  }
+
+  .cta-content.animate-on-scroll.animate-in {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Footer - Simple fade up */
+  .footer.animate-on-scroll {
+    transform: translateY(30px);
+  }
+
+  .footer.animate-on-scroll.animate-in {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* Responsive Design */
 @media (max-width: 1024px) {
   .hero {
@@ -1013,6 +1318,15 @@ body {
 
   .hero-image {
     max-width: 100%;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
+
+  .screenshot-image {
+    max-width: 100%;
+    min-height: 600px;
+    height: auto;
   }
 
   .steps-container {
@@ -1020,10 +1334,20 @@ body {
     align-items: center;
   }
 
-  .step-connector {
-    width: 100px;
-    height: 2px;
-    margin: 1rem 0;
+  .step-item {
+    gap: 1.5rem;
+  }
+
+  .step-number-circle {
+    width: 60px;
+    height: 60px;
+    min-width: 60px;
+    font-size: 1.5rem;
+  }
+
+  .step-line {
+    left: 29px;
+    top: 60px;
   }
 
   .pricing-card.featured {
@@ -1082,6 +1406,12 @@ body {
     justify-content: center;
   }
 
+  .screenshot-image {
+    max-width: 100%;
+    min-height: 500px;
+    height: auto;
+  }
+
   .footer-content {
     grid-template-columns: 1fr;
     text-align: center;
@@ -1122,8 +1452,38 @@ body {
   }
 
   .feature-card,
-  .step-card,
   .pricing-card {
     padding: 2rem;
+  }
+
+  .step-item {
+    gap: 1rem;
+  }
+
+  .step-number-circle {
+    width: 50px;
+    height: 50px;
+    min-width: 50px;
+    font-size: 1.25rem;
+  }
+
+  .step-line {
+    left: 24px;
+    top: 50px;
+    min-height: 100px;
+  }
+
+  .step-title {
+    font-size: 1.2rem;
+  }
+
+  .step-description {
+    font-size: 0.9rem;
+  }
+
+  .screenshot-image {
+    max-width: 100%;
+    min-height: 400px;
+    height: auto;
   }
 }
