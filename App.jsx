@@ -21,7 +21,8 @@ const App = () => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 50);
     };
-    window.addEventListener('scroll', handleScroll);
+    // Use passive listener to ensure scrolling is never blocked
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -35,8 +36,9 @@ const App = () => {
       heroImageRef.current.classList.add('hero-image-load');
     }
     
-    // Trigger animations after a very short delay to ensure classes are applied
+    // Trigger animations immediately to ensure no blocking
     requestAnimationFrame(() => {
+      // Use minimal delay to ensure classes are applied but don't block interaction
       setTimeout(() => {
         if (heroContentRef.current) {
           heroContentRef.current.classList.add('hero-content-animated');
@@ -44,7 +46,7 @@ const App = () => {
         if (heroImageRef.current) {
           heroImageRef.current.classList.add('hero-image-animated');
         }
-      }, 50);
+      }, 10); // Reduced delay for faster initial response
     });
   }, []);
 
@@ -94,6 +96,7 @@ const App = () => {
     );
 
     // Small delay to ensure DOM is ready
+    // Reduced delay to allow faster initial interaction
     const timeoutId = setTimeout(() => {
       observer.observe(heroStats);
       
@@ -101,9 +104,9 @@ const App = () => {
       if (wasInitiallyVisible && !hasUserScrolled) {
         setTimeout(() => {
           triggerAnimation();
-        }, 1000); // Wait for hero content animation to complete
+        }, 800); // Reduced wait time for hero content animation
       }
-    }, 100);
+    }, 50);
 
     return () => {
       clearTimeout(timeoutId);
@@ -119,21 +122,17 @@ const App = () => {
     let observer;
     let elementsToObserve = [];
     let hasUserScrolled = false;
-    let scrollTimeout;
 
     // Track if user has actively scrolled - set immediately on any scroll
+    // Use passive listeners to never block scrolling
     const handleScroll = () => {
       if (!hasUserScrolled) {
         hasUserScrolled = true;
       }
-      // Clear any timeout to ensure immediate response
-      if (scrollTimeout) {
-        clearTimeout(scrollTimeout);
-      }
     };
-    window.addEventListener('scroll', handleScroll, { passive: true, capture: true });
-    window.addEventListener('wheel', handleScroll, { passive: true, capture: true });
-    window.addEventListener('touchmove', handleScroll, { passive: true, capture: true });
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('wheel', handleScroll, { passive: true });
+    window.addEventListener('touchmove', handleScroll, { passive: true });
 
     const observerOptions = {
       threshold: 0.1,
@@ -146,15 +145,12 @@ const App = () => {
       // Works immediately on scroll, regardless of stats animation state
       observer = new IntersectionObserver((entries) => {
         entries.forEach((entry) => {
-          // Animate if element is intersecting AND (user has scrolled OR enough time has passed)
-          // This allows animations to work even if user scrolls before stats finish
+          // Animate if element is intersecting - don't block on scroll state
           if (entry.isIntersecting) {
-            // Always allow animation if user has scrolled, or after initial delay
-            if (hasUserScrolled || Date.now() > (window.pageLoadTime || 0) + 2000) {
-              entry.target.classList.add('animate-in');
-              // Unobserve after animation is triggered to prevent re-triggering
-              observer.unobserve(entry.target);
-            }
+            // Always allow animation - don't wait for scroll state
+            entry.target.classList.add('animate-in');
+            // Unobserve after animation is triggered to prevent re-triggering
+            observer.unobserve(entry.target);
           }
         });
       }, observerOptions);
@@ -206,16 +202,14 @@ const App = () => {
     }
 
     // Use setTimeout to ensure DOM is fully rendered
-    const timeoutId = setTimeout(setupAnimations, 200);
+    // Reduced delay to allow faster initial interaction
+    const timeoutId = setTimeout(setupAnimations, 50);
 
     return () => {
       clearTimeout(timeoutId);
-      if (scrollTimeout) {
-        clearTimeout(scrollTimeout);
-      }
-      window.removeEventListener('scroll', handleScroll, { capture: true });
-      window.removeEventListener('wheel', handleScroll, { capture: true });
-      window.removeEventListener('touchmove', handleScroll, { capture: true });
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('wheel', handleScroll);
+      window.removeEventListener('touchmove', handleScroll);
       if (observer) {
         elementsToObserve.forEach((el) => {
           if (el) {
@@ -250,9 +244,37 @@ const App = () => {
     requestAnimationFrame(animate);
   };
 
-  const handleCTAClick = () => {
-    window.location.href = 'https://anita.app'; // Update with actual webapp URL
+  const handleCTAClick = (e) => {
+    // Prevent any default behavior and ensure immediate response
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    // Use setTimeout to ensure touch event completes
+    setTimeout(() => {
+      window.location.href = 'https://anita.app'; // Update with actual webapp URL
+    }, 0);
   };
+
+  // Ensure touch events work immediately on mobile
+  useEffect(() => {
+    // Add touch event listeners to ensure immediate response
+    const handleTouchStart = (e) => {
+      // Allow touch events to propagate normally
+      // This ensures scrolling and button clicks work on first touch
+    };
+
+    // Add to document to catch all touches
+    document.addEventListener('touchstart', handleTouchStart, { passive: true, capture: true });
+    
+    // Ensure body is scrollable immediately
+    document.body.style.overflow = 'auto';
+    document.documentElement.style.overflow = 'auto';
+
+    return () => {
+      document.removeEventListener('touchstart', handleTouchStart, { capture: true });
+    };
+  }, []);
 
   return (
     <div className="app">
@@ -260,13 +282,21 @@ const App = () => {
       <nav className={`navbar ${scrolled ? 'scrolled' : ''}`}>
         <div className="nav-container">
           <div className="nav-logo">
+            <span className="logo-beta">BETA</span>
             <span className="logo-text">ANITA</span>
             <span className="logo-subtitle">Personal Finance Assistant</span>
           </div>
           <div className="nav-links">
             <a href="#features" className="nav-link">Features</a>
             <a href="#how-it-works" className="nav-link">How It Works</a>
-            <button className="nav-cta" onClick={handleCTAClick}>
+            <button 
+              className="nav-cta" 
+              onClick={handleCTAClick}
+              onTouchStart={(e) => {
+                e.stopPropagation();
+                handleCTAClick(e);
+              }}
+            >
               Get Started
             </button>
           </div>
@@ -280,9 +310,6 @@ const App = () => {
           <div className="gradient-orb orb-2"></div>
         </div>
         <div className="hero-content" ref={heroContentRef}>
-          <div className="hero-badge">
-            <span className="beta-badge">Currently in Beta</span>
-          </div>
           <h1 className="hero-title">
             ANITA
             <br />
@@ -293,7 +320,14 @@ const App = () => {
             and get personalized help to reach your financial goals.
           </p>
           <div className="hero-cta-group">
-            <button className="cta-button primary" onClick={handleCTAClick}>
+            <button 
+              className="cta-button primary" 
+              onClick={handleCTAClick}
+              onTouchStart={(e) => {
+                e.stopPropagation();
+                handleCTAClick(e);
+              }}
+            >
               Get Started
             </button>
           </div>
@@ -463,7 +497,14 @@ const App = () => {
           <p className="cta-description">
             Join the beta and take control of your financial future with ANITA
           </p>
-          <button className="cta-button large" onClick={handleCTAClick}>
+          <button 
+            className="cta-button large" 
+            onClick={handleCTAClick}
+            onTouchStart={(e) => {
+              e.stopPropagation();
+              handleCTAClick(e);
+            }}
+          >
             Get Started
           </button>
           <p className="pricing-note">Pricing available in the webapp</p>
