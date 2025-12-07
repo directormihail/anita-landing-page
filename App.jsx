@@ -119,12 +119,21 @@ const App = () => {
     let observer;
     let elementsToObserve = [];
     let hasUserScrolled = false;
+    let scrollTimeout;
 
-    // Track if user has actively scrolled
+    // Track if user has actively scrolled - set immediately on any scroll
     const handleScroll = () => {
-      hasUserScrolled = true;
+      if (!hasUserScrolled) {
+        hasUserScrolled = true;
+      }
+      // Clear any timeout to ensure immediate response
+      if (scrollTimeout) {
+        clearTimeout(scrollTimeout);
+      }
     };
-    window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('scroll', handleScroll, { passive: true, capture: true });
+    window.addEventListener('wheel', handleScroll, { passive: true, capture: true });
+    window.addEventListener('touchmove', handleScroll, { passive: true, capture: true });
 
     const observerOptions = {
       threshold: 0.1,
@@ -133,15 +142,19 @@ const App = () => {
 
     // Set up animations after DOM is ready
     const setupAnimations = () => {
-      // Create observer that only triggers animations when elements come into view after scroll
+      // Create observer that triggers animations when elements come into view
+      // Works immediately on scroll, regardless of stats animation state
       observer = new IntersectionObserver((entries) => {
         entries.forEach((entry) => {
-          // Only animate if element is intersecting AND user has actively scrolled
-          // This prevents animations on initial page load
-          if (entry.isIntersecting && hasUserScrolled) {
-            entry.target.classList.add('animate-in');
-            // Unobserve after animation is triggered to prevent re-triggering
-            observer.unobserve(entry.target);
+          // Animate if element is intersecting AND (user has scrolled OR enough time has passed)
+          // This allows animations to work even if user scrolls before stats finish
+          if (entry.isIntersecting) {
+            // Always allow animation if user has scrolled, or after initial delay
+            if (hasUserScrolled || Date.now() > (window.pageLoadTime || 0) + 2000) {
+              entry.target.classList.add('animate-in');
+              // Unobserve after animation is triggered to prevent re-triggering
+              observer.unobserve(entry.target);
+            }
           }
         });
       }, observerOptions);
@@ -187,12 +200,22 @@ const App = () => {
       });
     };
 
+    // Store page load time for animation timing
+    if (!window.pageLoadTime) {
+      window.pageLoadTime = Date.now();
+    }
+
     // Use setTimeout to ensure DOM is fully rendered
     const timeoutId = setTimeout(setupAnimations, 200);
 
     return () => {
       clearTimeout(timeoutId);
-      window.removeEventListener('scroll', handleScroll);
+      if (scrollTimeout) {
+        clearTimeout(scrollTimeout);
+      }
+      window.removeEventListener('scroll', handleScroll, { capture: true });
+      window.removeEventListener('wheel', handleScroll, { capture: true });
+      window.removeEventListener('touchmove', handleScroll, { capture: true });
       if (observer) {
         elementsToObserve.forEach((el) => {
           if (el) {
