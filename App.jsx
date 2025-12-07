@@ -60,12 +60,13 @@ const App = () => {
     let animationTriggered = false;
 
     // Track if user has scrolled (not just page load)
+    // Use passive listener to ensure scrolling is never blocked
     const handleScroll = () => {
       if (window.scrollY > 0) {
         hasUserScrolled = true;
       }
     };
-    window.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('scroll', handleScroll, { passive: true, capture: false });
 
     const triggerAnimation = () => {
       if (!animationTriggered && !statsAnimated) {
