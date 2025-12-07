@@ -25,27 +25,75 @@ const App = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Animate hero content and image on page load
   useEffect(() => {
+    if (heroContentRef.current) {
+      // Add initial animation state to hero content
+      heroContentRef.current.classList.add('hero-content-load');
+      // Trigger animation after a small delay
+      setTimeout(() => {
+        heroContentRef.current?.classList.add('hero-content-animated');
+      }, 100);
+    }
+    
+    if (heroImageRef.current) {
+      // Add initial animation state to hero image
+      heroImageRef.current.classList.add('hero-image-load');
+      // Trigger animation after a small delay (slightly after content)
+      setTimeout(() => {
+        heroImageRef.current?.classList.add('hero-image-animated');
+      }, 200);
+    }
+  }, []);
+
+  useEffect(() => {
+    const heroStats = document.querySelector('.hero-stats');
+    if (!heroStats) return;
+
+    // Check if stats are already visible on initial load
+    const rect = heroStats.getBoundingClientRect();
+    const wasInitiallyVisible = rect.top < window.innerHeight && rect.bottom > 0 && window.scrollY === 0;
+
+    let hasUserScrolled = false;
+
+    // Track if user has scrolled (not just page load)
+    const handleScroll = () => {
+      if (window.scrollY > 0) {
+        hasUserScrolled = true;
+      }
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
+          // Only animate if:
+          // 1. Element is intersecting (in viewport)
+          // 2. Animation hasn't been triggered yet
+          // 3. User has scrolled OR element wasn't visible on initial load
           if (entry.isIntersecting && !statsAnimated) {
-            setStatsAnimated(true);
-            animateNumber(32, setSmartQuestions, 2000);
-            animateNumber(200, setActiveUsers, 2000);
-            animateNumber(100, setSecurePercent, 2000);
+            // Animate if user scrolled OR if element wasn't visible initially
+            if (hasUserScrolled || !wasInitiallyVisible) {
+              setStatsAnimated(true);
+              animateNumber(32, setSmartQuestions, 2000);
+              animateNumber(200, setActiveUsers, 2000);
+              animateNumber(100, setSecurePercent, 2000);
+              observer.unobserve(entry.target);
+            }
           }
         });
       },
       { threshold: 0.3 }
     );
 
-    const heroStats = document.querySelector('.hero-stats');
-    if (heroStats) {
+    // Small delay to ensure DOM is ready
+    const timeoutId = setTimeout(() => {
       observer.observe(heroStats);
-    }
+    }, 100);
 
     return () => {
+      clearTimeout(timeoutId);
+      window.removeEventListener('scroll', handleScroll);
       if (heroStats) {
         observer.unobserve(heroStats);
       }
@@ -56,111 +104,83 @@ const App = () => {
   useEffect(() => {
     let observer;
     let elementsToObserve = [];
+    let hasUserScrolled = false;
+
+    // Track if user has actively scrolled
+    const handleScroll = () => {
+      hasUserScrolled = true;
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
 
     const observerOptions = {
       threshold: 0.1,
       rootMargin: '0px 0px -50px 0px'
     };
 
-    // Helper function to check if element is partially visible
-    const isPartiallyVisible = (element) => {
-      const rect = element.getBoundingClientRect();
-      return (
-        rect.top < window.innerHeight &&
-        rect.bottom > 0 &&
-        rect.left < window.innerWidth &&
-        rect.right > 0
-      );
-    };
-
     // Set up animations after DOM is ready
     const setupAnimations = () => {
-      // Create observer
+      // Create observer that only triggers animations when elements come into view after scroll
       observer = new IntersectionObserver((entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting) {
+          // Only animate if element is intersecting AND user has actively scrolled
+          // This prevents animations on initial page load
+          if (entry.isIntersecting && hasUserScrolled) {
             entry.target.classList.add('animate-in');
+            // Unobserve after animation is triggered to prevent re-triggering
+            observer.unobserve(entry.target);
           }
         });
       }, observerOptions);
 
       elementsToObserve = [];
 
-      // Helper to add element to observe or animate immediately
-      const setupElement = (element, delay = 100) => {
+      // Helper to add element to observe - always wait for scroll
+      const setupElement = (element) => {
         if (!element) return;
         
-        // Check if element is already visible BEFORE adding animate-on-scroll
-        // This prevents the flash of hidden content
-        const isVisible = isPartiallyVisible(element);
-        
-        if (isVisible) {
-          // If already visible, add both classes at once to prevent hiding
-          element.classList.add('animate-on-scroll', 'animate-in');
-        } else {
-          // If not visible, add animate-on-scroll and observe it
-          element.classList.add('animate-on-scroll');
-          if (observer) {
-            observer.observe(element);
-            elementsToObserve.push(element);
-          } else {
-            // If observer failed, make visible anyway as fallback
-            element.classList.add('animate-in');
-          }
+        // Always add animate-on-scroll class and observe it
+        // Elements will only animate when scrolled into view
+        element.classList.add('animate-on-scroll');
+        if (observer) {
+          observer.observe(element);
+          elementsToObserve.push(element);
         }
       };
 
       // Collect all elements first
       const allElements = [];
       
-      if (heroContentRef.current) allElements.push({ el: heroContentRef.current, delay: 100 });
-      if (heroImageRef.current) allElements.push({ el: heroImageRef.current, delay: 300 });
+      if (heroContentRef.current) allElements.push({ el: heroContentRef.current });
+      if (heroImageRef.current) allElements.push({ el: heroImageRef.current });
       
       document.querySelectorAll('.section-header').forEach((el) => {
-        allElements.push({ el, delay: 100 });
+        allElements.push({ el });
       });
       
       // Features grid container
       if (featuresGridRef.current) {
-        allElements.push({ el: featuresGridRef.current, delay: 100 });
+        allElements.push({ el: featuresGridRef.current });
       }
       
       // Steps container
       if (stepsContainerRef.current) {
-        allElements.push({ el: stepsContainerRef.current, delay: 100 });
+        allElements.push({ el: stepsContainerRef.current });
       }
-      if (ctaContentRef.current) allElements.push({ el: ctaContentRef.current, delay: 100 });
-      if (footerRef.current) allElements.push({ el: footerRef.current, delay: 100 });
+      if (ctaContentRef.current) allElements.push({ el: ctaContentRef.current });
+      if (footerRef.current) allElements.push({ el: footerRef.current });
 
-      // Setup all elements
-      allElements.forEach(({ el, delay }) => {
-        setupElement(el, delay);
+      // Setup all elements - they will animate only when scrolled into view
+      allElements.forEach(({ el }) => {
+        setupElement(el);
       });
-
-      // Fallback: if IntersectionObserver is not supported, make all elements visible after 1.5 seconds
-      if (typeof IntersectionObserver === 'undefined') {
-        setTimeout(() => {
-          document.querySelectorAll('.animate-on-scroll:not(.animate-in)').forEach((el) => {
-            el.classList.add('animate-in');
-          });
-        }, 1500);
-      }
     };
 
     // Use setTimeout to ensure DOM is fully rendered
     const timeoutId = setTimeout(setupAnimations, 200);
-    
-    // Safety fallback: ensure all elements are visible after 2 seconds regardless
-    const fallbackTimeoutId = setTimeout(() => {
-      // Make all elements visible as a safety net
-      document.querySelectorAll('.animate-on-scroll:not(.animate-in)').forEach((el) => {
-        el.classList.add('animate-in');
-      });
-    }, 2000);
 
     return () => {
       clearTimeout(timeoutId);
-      clearTimeout(fallbackTimeoutId);
+      window.removeEventListener('scroll', handleScroll);
       if (observer) {
         elementsToObserve.forEach((el) => {
           if (el) {
